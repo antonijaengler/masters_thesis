@@ -63,8 +63,8 @@ def checkCollinear(point1, point2, point3):
 
 
 def generateJunctionMesh(graph, opendrive):
-    #counter = len(graph.nodes) + 1
-    counter = list(graph.nodes)[-1].id
+    # find max id of edges
+    counter = max([graph_network.edges[e]["id"] for e in graph_network.edges]) + 1
     numoflanes = 2
 
     # iterate through graph vertices
@@ -157,8 +157,22 @@ def generateJunctionMesh(graph, opendrive):
                 successor = Connection.Successor("road", graph.edges[neighbours[1]]['id'], "start")
                 link.addSuccessor(successor)
 
+                # for each lane
+                innerlink1 = Connection.Link()
+                predlink1 = Connection.Predecessor(None, 1, None)
+                innerlink1.addPredecessor(predlink1)
+                succlink1 = Connection.Successor(None, 1, None)
+                innerlink1.addSuccessor(succlink1)
+                drivingLane.addLink(innerlink1)
+
+                innerlink_1 = Connection.Link()
+                predlink_1 = Connection.Predecessor(None, -1, None)
+                innerlink_1.addPredecessor(predlink_1)
+                succlink_1 = Connection.Successor(None, -1, None)
+                innerlink_1.addSuccessor(succlink_1)
+                drivingLane1.addLink(innerlink_1)
+
                 if length < 0:
-                    print("ALSO HERE!!!!!!!")
                     print("Road length in junction:", length)
                     print("------------------------------------")
                 road = Road.Road("Road " + str(counter), length, counter, node.id, [lanes], planView, [link])
@@ -196,7 +210,6 @@ def generateMesh(graph):
         length = math.sqrt(math.pow(secondNode.x - firstNode.x, 2) + math.pow(secondNode.y - firstNode.y, 2))
         print("Before junction road is long: ", length)
         if length < 1:
-            print("THIS!!!!!!!!")
             print("\tFirst node:", x, y)
             print("\tSecond node:", secondNode.x, secondNode.y)
             print("---------------------------------------------------")
@@ -239,6 +252,10 @@ def generateMesh(graph):
         lanes = Lane.Lanes([laneOffset, laneSection])
         planView = RoadView.PlanView([geometry])
         link = Connection.Link()
+        lanelink1 = Connection.Link()
+        lanelink2 = Connection.Link()
+        lanelink_1 = Connection.Link()
+        lanelink_2 = Connection.Link()
 
         # predecessors
         if firstNode.junction:
@@ -255,6 +272,20 @@ def generateMesh(graph):
                     predecessor = Connection.Predecessor(predecessortype, graph.edges[firstNode, key]['id'], predecessorconntactpoint)
                     link.addPredecessor(predecessor)
 
+                    # for every lane
+                    predlink1 = Connection.Predecessor(None, 1, None)
+                    lanelink1.addPredecessor(predlink1)
+                    drivingLane.addLink(lanelink1)
+                    predlink2 = Connection.Predecessor(None, 2, None)
+                    lanelink2.addPredecessor(predlink2)
+                    shoulderLane.addLink(lanelink2)
+                    predlink_1 = Connection.Predecessor(None, -1, None)
+                    lanelink_1.addPredecessor(predlink_1)
+                    drivingLane1.addLink(lanelink_1)
+                    predlink_2 = Connection.Predecessor(None, -2, None)
+                    lanelink_2.addPredecessor(predlink_2)
+                    shoulderLane1.addLink(lanelink_2)
+
         # successors
         if secondNode.junction:
             successortype = "junction"
@@ -268,6 +299,20 @@ def generateMesh(graph):
                     successorcontactpoint = "start"
                     successor = Connection.Successor(successortype, graph.edges[secondNode, key]['id'], successorcontactpoint)
                     link.addSuccessor(successor)
+
+                    # for every lane
+                    succlink1 = Connection.Successor(None, 1, None)
+                    lanelink1.addSuccessor(succlink1)
+                    drivingLane.addLink(lanelink1)
+                    succlink2 = Connection.Successor(None, 2, None)
+                    lanelink2.addSuccessor(succlink2)
+                    shoulderLane.addLink(lanelink2)
+                    succlink_1 = Connection.Successor(None, -1, None)
+                    lanelink_1.addSuccessor(succlink_1)
+                    drivingLane1.addLink(lanelink_1)
+                    succlink_2 = Connection.Successor(None, -2, None)
+                    lanelink_2.addSuccessor(succlink_2)
+                    shoulderLane1.addLink(lanelink_2)
 
         road = Road.Road("Road " + str(graph.edges[edge]['id']), length, graph.edges[edge]['id'], -1, [lanes], planView, [link])
 
@@ -286,15 +331,15 @@ if __name__ == '__main__':
 
     rule1 = Rules.Rule(length=100)
     rule2 = Rules.Rule("B", "C", "B", 2, 100, 90)
-    rule3 = Rules.Rule("B", "C", "B", 3, 60, 20) # solve this instance when two roads are connected, but on different angles
+    rule3 = Rules.Rule("B", "C", "B", 3, 60, 20)
     rule4 = Rules.Rule("D", "C", "B", 2, 70, 70)
     rule5 = Rules.Rule("B", "C", "B", 2, 40, 90)
 
     root = Tree.Node()
 
-    iterationlimit = 4
+    iterationlimit = 10
 
-    generator = LSystem.LSystemGenerator([rule1, rule3, rule4], root, iterationlimit)
+    generator = LSystem.LSystemGenerator([rule1, rule2], root, iterationlimit)
     tree = generator.generateTree()
 
     tree.printTree()
