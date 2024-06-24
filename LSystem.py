@@ -20,7 +20,7 @@ class LSystemGenerator:
             for i in range(0, randomrule.spawncount):
                 new_angle = randomrule.angle + node.angle
                 new_x = randomrule.length * round(math.cos(math.radians(new_angle)), 15)
-                new_y = randomrule.length * math.sin(math.radians(new_angle))
+                new_y = randomrule.length * round(math.sin(math.radians(new_angle)), 15)
                 newnode = Tree.Node(self.counter, 0, node.x + new_x, node.y + new_y, randomrule.spawntype, new_angle)
                 node.addChild(newnode)
                 randomrule.angle = randomrule.angle - changeangle
