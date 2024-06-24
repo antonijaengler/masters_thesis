@@ -133,6 +133,12 @@ def generateJunctionMesh(graph, opendrive):
 
                     length = distancecurve
 
+                if length <= 0:
+                    print("Road length in junction:", length)
+                    print("------------------------------------")
+                    length += 1e-10
+                    geometry1.setLength(length)
+
                 # define lanes
                 width = Width.Width(0.0, 4.0, 0.0, 0.0, 0.0)
                 drivingLane = Lane.Lane(1, "driving", "false", width)
@@ -172,9 +178,7 @@ def generateJunctionMesh(graph, opendrive):
                 innerlink_1.addSuccessor(succlink_1)
                 drivingLane1.addLink(innerlink_1)
 
-                if length < 0:
-                    print("Road length in junction:", length)
-                    print("------------------------------------")
+                # define road
                 road = Road.Road("Road " + str(counter), length, counter, node.id, [lanes], planView, [link])
 
                 opendrive.addRoad(road)
@@ -337,9 +341,9 @@ if __name__ == '__main__':
 
     root = Tree.Node()
 
-    iterationlimit = 10
+    iterationlimit = 5
 
-    generator = LSystem.LSystemGenerator([rule1, rule2], root, iterationlimit)
+    generator = LSystem.LSystemGenerator([rule1, rule5], root, iterationlimit)
     tree = generator.generateTree()
 
     tree.printTree()

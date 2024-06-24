@@ -32,6 +32,9 @@ class Geometry:
         self.line = line
         self.arc = arc
 
+    def setLength(self, length):
+        self.length = length
+
     def printBegin(self, level):
         return level * "    " + f'<geometry s="{round(self.s, 1)}" x="{self.x}" y="{self.y}" hdg="{self.hdg}" length="{self.length}">\n'
 
